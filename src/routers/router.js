@@ -1,9 +1,19 @@
 const express = require('express');
 const router = new express.Router();
-const User = require('./../modal/user')
+const User = require('./../modal/user');
+var cors = require('cors')
+const app = express();
 
 
-router.post('/users', (req, res) => {
+
+const corsOptions = {
+    origin: [process.env.URL, 'http://localhost:3000', 'http://localhost:8080']
+  }
+  
+  app.use(cors(corsOptions))
+  app.options('*', cors(corsOptions))
+
+router.post('/users', cors(corsOptions), (req, res) => {
     const user = new User(req.body);
     user.save().then(() => {
         res.send(user)
@@ -13,7 +23,7 @@ router.post('/users', (req, res) => {
 })
 
 
-router.get('/users', (req, res) => {
+router.get('/users', cors(corsOptions), (req, res) => {
     User.find({}).then(users => {
         res.send(users)
     }).catch((e) => {
@@ -21,8 +31,7 @@ router.get('/users', (req, res) => {
     })
 })
 
-router.get('/users/:id', (req, res) => {
-    console.log('req:::', req.params)
+router.get('/users/:id', cors(corsOptions), (req, res) => {
     User.findById(req.params.id).then((user) => {
         if (!user) {
             return res.status(404).send()
@@ -33,7 +42,7 @@ router.get('/users/:id', (req, res) => {
     })
 })
 
-router.put('/users/:id', (req, res) => {
+router.put('/users/:id', cors(corsOptions), (req, res) => {
     User.findByIdAndUpdate(req.params.id, req.body).then((user) => {
         res.status(200).send(user);
     }).catch((e) => {
@@ -41,14 +50,13 @@ router.put('/users/:id', (req, res) => {
     })
 })
 
-router.delete('/users/:id', (req, res) => {
+router.delete('/users/:id', cors(corsOptions), (req, res) => {
     User.findByIdAndDelete(req.params.id).then((user) => {
         if (!user) {
             return res.status(404).send();
         }
         res.status(200).send(user);
     }).catch((error) => {
-
     })
 })
 
